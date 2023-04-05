@@ -26,10 +26,8 @@ function activate(context) {
     // A regular expression is used to match function declarations in the text.
     // The matched function names are added to an array 'functionsMatch'.
     const text = doc.getText();
-
     // Below line finds all the functions
     // const regex = /(function|const|let|var)\s+([\w]+)\s*(?=\()|(?:([\w]+)\s*()?\s*=>)|(?<=\.)([\w]+)\s*(?=\()/g;
-
     // Need only functions which we can write text case
     const regex = /^\s*\w+\s*\(\s*\)\s*{\s*(?!\/\/).*[\s\S]*?}/gm;
     const functionsMatch = [];
@@ -72,24 +70,47 @@ function activate(context) {
       if (!selection) {
         return;
       }
+      // Options to choose from.
+      const Options = ['Test Case', 'Show missed edge if any', 'Document the funciton']
+      let suggestion = ''
+      await vscode.window.showQuickPick(Options).then(option => {
+        if (!option) {
+          return;
+        }
+        suggestion = option
+      })
       const range = doc.getText().indexOf(selection.label);
       const position = doc.positionAt(range);
       editor.selection = new vscode.Selection(position, position);
       editor.revealRange(editor.selection);
       // Call OpenAI code here and then let user get the test case.
-      vscode.window.showInformationMessage('Will be right back with the answer.');
-	    await triggerOpenApiCall(selection)
+      vscode.window.showInformationMessage('Will be right back with the result.');
+	    await triggerOpenApiCall(selection, suggestion)
+      vscode.window.showInformationMessage('Hope this helps.');
     });
 
-	async function triggerOpenApiCall (selection) {
+	async function triggerOpenApiCall (selection, suggestion) {
 		// OpenAi Initial Prompt here
-		let prompt = 'Give the full jest mock test case that covers the complete function\'s flow where consider the external function call as no-op\'s.'
+		let prompt = ''
+    switch (suggestion) {
+      case 'Test Case': 
+        prompt = 'Give the full jest mock test case that covers the complete function\'s flow where consider the external function call as no-op\'s.'
+        break
+      case 'Show missed edge if any': 
+        prompt = 'Listing all possible edge cases which could break the function and rate it based on criticality'
+        break
+      case 'Document the funciton': 
+        prompt = 'Give a short overview of the function\'s purpose'
+        break
+      default: prompt = ''
+    }
 		prompt = prompt + '\n' + selection.label
 		const res = await openai.createChatCompletion({
 			model:"gpt-3.5-turbo",
 			messages:[{role: "user", content: prompt}]
 		})
 		const solution = res.data.choices[0].message.content;
+    // Need to fix height when length is too big
 		vscode.window.showInformationMessage(solution, { modal: true });
 
 	}
