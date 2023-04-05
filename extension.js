@@ -71,7 +71,7 @@ function activate(context) {
         return;
       }
       // Options to choose from.
-      const Options = ['Test Case', 'Show missed edge if any', 'Document the funciton']
+      const Options = ['Test Case', 'Show missed edge case if any', 'Document the funciton']
       let suggestion = ''
       await vscode.window.showQuickPick(Options).then(option => {
         if (!option) {
@@ -96,8 +96,8 @@ function activate(context) {
       case 'Test Case': 
         prompt = 'Give the full jest mock test case that covers the complete function\'s flow where consider the external function call as no-op\'s.'
         break
-      case 'Show missed edge if any': 
-        prompt = 'Listing all possible edge cases which could break the function and rate it based on criticality'
+      case 'Show missed edge case if any': 
+        prompt = 'List all possible edge cases which could break the function and rate it based on criticality'
         break
       case 'Document the funciton': 
         prompt = 'Give a short overview of the function\'s purpose'

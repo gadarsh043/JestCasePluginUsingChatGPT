@@ -15,7 +15,7 @@
     "commands": [
       {
         "command": "write-jest-code.listFunctions",
-        "title": "Write Jest Test Case"
+        "title": "Know Your Function"
       }
     ]
   },
