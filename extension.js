@@ -29,7 +29,7 @@ function activate(context) {
     // Below line finds all the functions
     // const regex = /(function|const|let|var)\s+([\w]+)\s*(?=\()|(?:([\w]+)\s*()?\s*=>)|(?<=\.)([\w]+)\s*(?=\()/g;
     // Need only functions which we can write text case
-    const regex = /^\s*\w+\s*\(\s*\)\s*{\s*(?!\/\/).*[\s\S]*?}/gm;
+    const regex = /^\s*\w+\s*\(\s*\)\s*{\s*((?:[^{}]*|\{(?:[^{}]*|\{(?:[^{}]*|\{[^{}]*\})*\})*\})*)\s*}/gm;
     const functionsMatch = [];
     let match;
     while ((match = regex.exec(text))) {
@@ -70,6 +70,31 @@ function activate(context) {
       if (!selection) {
         return;
       }
+      const range = doc.getText().indexOf(selection.label);
+      const position = doc.positionAt(range);
+      editor.selection = new vscode.Selection(position, position);
+      editor.revealRange(editor.selection);
+
+      // // Highlighting the selected code
+      // // Get the selected function name from the quick pick dialog
+      // const selectedFunctionName = selection.label;
+      // // Create a TextEditorDecorationType for the highlighting
+      // const decorationType = vscode.window.createTextEditorDecorationType({
+      //   backgroundColor: new vscode.ThemeColor('editor.selectionBackground'),
+      //   color: 'white',
+      //   fontWeight: 'normal'
+      // });
+      // // Create a range that covers the selected function name
+      // const selectedFunctionRange = new vscode.Range(
+      //     editor.document.positionAt(text.indexOf(selectedFunctionName)),
+      //     editor.document.positionAt(text.indexOf(selectedFunctionName) + selectedFunctionName.length)
+      // );
+      // // Add the range to a list of ranges to decorate
+      // const ranges = [selectedFunctionRange];
+      // // Apply the decoration to the editor
+      // editor.setDecorations(decorationType, ranges);  
+      
+
       // Options to choose from.
       const Options = ['Test Case', 'Show missed edge case if any', 'Document the funciton']
       let suggestion = ''
@@ -79,10 +104,7 @@ function activate(context) {
         }
         suggestion = option
       })
-      const range = doc.getText().indexOf(selection.label);
-      const position = doc.positionAt(range);
-      editor.selection = new vscode.Selection(position, position);
-      editor.revealRange(editor.selection);
+
       // Call OpenAI code here and then let user get the test case.
       vscode.window.showInformationMessage('Will be right back with the result.');
 	    await triggerOpenApiCall(selection, suggestion)
