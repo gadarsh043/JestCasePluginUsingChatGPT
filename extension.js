@@ -18,8 +18,9 @@ function activate(context) {
     // and if the language ID is not 'vue' or 'javascript',
     // an information message is displayed and the function returns.
     const doc = editor.document;
-    if (doc.languageId !== 'vue' && doc.languageId !== 'javascript') {
-      vscode.window.showInformationMessage('This command is only available for Vue and JavaScript files');
+    const languageUsed = doc.languageId;
+    if (!(languageUsed === 'vue' || languageUsed === 'javascript' || languageUsed === 'java')) {
+      vscode.window.showInformationMessage('Please Run this on Java / Vue / Java script files');
       return;
     }
 
@@ -29,7 +30,11 @@ function activate(context) {
     // Below line finds all the functions
     // const regex = /(function|const|let|var)\s+([\w]+)\s*(?=\()|(?:([\w]+)\s*()?\s*=>)|(?<=\.)([\w]+)\s*(?=\()/g;
     // Need only functions which we can write text case
-    const regex = /^\s*\w+\s*\(\s*\)\s*{\s*((?:[^{}]*|\{(?:[^{}]*|\{(?:[^{}]*|\{[^{}]*\})*\})*\})*)\s*}/gm;
+    const regex = 
+    languageUsed === 'java' ?
+    /(?:public\s+)?(?:static\s+)?(?:final\s+)?(?:<[\w,?\s]+>\s+)?(?:\w+\s+)+(\w+)\s*\([^)]*\)\s*\{[\s\S]*?\}/gm : 
+    /^\s*\w+\s*\(\s*\)\s*{\s*((?:[^{}]*|\{(?:[^{}]*|\{(?:[^{}]*|\{[^{}]*\})*\})*\})*)\s*}/gm;
+
     const functionsMatch = [];
     let match;
     while ((match = regex.exec(text))) {
@@ -60,7 +65,7 @@ function activate(context) {
 
 	// ChatGPT Initializing
 	const configuration = new Configuration({
-		apiKey: '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',
+		apiKey: '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',
 	});
 	const openai = new OpenAIApi(configuration);
 
@@ -75,28 +80,28 @@ function activate(context) {
       editor.selection = new vscode.Selection(position, position);
       editor.revealRange(editor.selection);
 
-      // // Highlighting the selected code
-      // // Get the selected function name from the quick pick dialog
-      // const selectedFunctionName = selection.label;
-      // // Create a TextEditorDecorationType for the highlighting
-      // const decorationType = vscode.window.createTextEditorDecorationType({
-      //   backgroundColor: new vscode.ThemeColor('editor.selectionBackground'),
-      //   color: 'white',
-      //   fontWeight: 'normal'
-      // });
-      // // Create a range that covers the selected function name
-      // const selectedFunctionRange = new vscode.Range(
-      //     editor.document.positionAt(text.indexOf(selectedFunctionName)),
-      //     editor.document.positionAt(text.indexOf(selectedFunctionName) + selectedFunctionName.length)
-      // );
-      // // Add the range to a list of ranges to decorate
-      // const ranges = [selectedFunctionRange];
-      // // Apply the decoration to the editor
-      // editor.setDecorations(decorationType, ranges);  
+      // Highlighting the selected code
+      // Get the selected function name from the quick pick dialog
+      const selectedFunctionName = selection.label;
+      // Create a TextEditorDecorationType for the highlighting
+      const decorationType = vscode.window.createTextEditorDecorationType({
+        backgroundColor: new vscode.ThemeColor('editor.selectionBackground'),
+        color: 'white',
+        fontWeight: 'normal'
+      });
+      // Create a range that covers the selected function name
+      const selectedFunctionRange = new vscode.Range(
+          editor.document.positionAt(text.indexOf(selectedFunctionName)),
+          editor.document.positionAt(text.indexOf(selectedFunctionName) + selectedFunctionName.length)
+      );
+      // Add the range to a list of ranges to decorate
+      const ranges = [selectedFunctionRange];
+      // Apply the decoration to the editor
+      editor.setDecorations(decorationType, ranges);  
       
 
       // Options to choose from.
-      const Options = ['Test Case', 'Show missed edge case if any', 'Document the funciton']
+      const Options = ['Generate Unit Test Cases', 'Edge Case Analysis', 'Explain code','Generate Java Doc']
       let suggestion = ''
       await vscode.window.showQuickPick(Options).then(option => {
         if (!option) {
@@ -115,14 +120,21 @@ function activate(context) {
 		// OpenAi Initial Prompt here
 		let prompt = ''
     switch (suggestion) {
-      case 'Test Case': 
-        prompt = 'Give the full jest mock test case that covers the complete function\'s flow where consider the external function call as no-op\'s.'
+      case 'Generate Unit Test Cases': 
+        prompt = 
+        languageUsed === 'java' ?
+        'Generate JUnit Test cases for the below code from Spring boot framework. Consider edge cases such as null inputs or empty collections, as well as boundary cases such as the upper and lower limits of any input parameters. Additionally, consider testing any dependencies that the class relies on, and whether the class properly handles any exceptions that may be thrown during its execution. Finally, consider testing the class\'s interaction with any external resources such as databases, web services, or message queues. Ignore verifying log statements.':
+        'Give the full jest mock test case that covers the complete function\'s flow where consider the external function call as no-op\'s.'
         break
-      case 'Show missed edge case if any': 
-        prompt = 'List all possible edge cases which could break the function and rate it based on criticality'
+      case 'Edge Case Analysis': 
+        prompt = 'List all possible edge cases which could break the method as table with the columns, line of code which has potential error, error level, probability of occurence, updated code where the scenario is fixed'
         break
-      case 'Document the funciton': 
-        prompt = 'Give a short overview of the function\'s purpose'
+      case 'Explain code': 
+        prompt = 'Give a brief description on the below method, Explain it to me as if I have never interacted with this code base'
+        break
+      case 'Generate Java Doc': 
+        prompt = languageUsed === 'java' ?'Generate JavaDoc for below method. Dont include code, Just return Java Doc comment in response':
+        'generate comment to indicate what this function does (A javadoc equivalent of javascript)'
         break
       default: prompt = ''
     }
@@ -134,6 +146,11 @@ function activate(context) {
 		const solution = res.data.choices[0].message.content;
     // Need to fix height when length is too big
 		vscode.window.showInformationMessage(solution, { modal: true });
+    // vscode.window.createWebviewPanel(
+    //   solution,
+    //   'Test Cases',
+    //   {}
+    // );
 
 	}
 
