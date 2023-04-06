@@ -17,7 +17,40 @@
         "command": "write-jest-code.listFunctions",
         "title": "List All Methods"
       }
-    ]
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "command": "write-jest-code.listFunctions",
+          "when": "editorTextFocus",
+          "group": "navigation"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "write-jest-code.listFunctions",
+          "title": "List All Methods"
+        }
+      ]
+    },
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "write-jest-code-sidebar",
+          "title": "Write Jest Code",
+          "icon": "./icons/iteration.png"
+        }
+      ]
+    },
+    "views": {
+      "write-jest-code-sidebar": [
+        {
+          "id": "write-jest-code-sidebar",
+          "name": "Write Jest Code",
+          "webviewPanel": "write-jest-code-sidebar"
+        }
+      ]
+    }
   },
   "scripts": {
     "lint": "eslint .",
@@ -37,6 +70,7 @@
   },
   "dependencies": {
     "dotenv": "^16.0.3",
+    "markdown-it": "^13.0.1",
     "openai": "^3.2.1"
   }
 }

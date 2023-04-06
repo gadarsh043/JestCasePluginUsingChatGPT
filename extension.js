@@ -4,6 +4,7 @@ const config = require('dotenv');
 const { Configuration, OpenAIApi } = require('openai');
 // config()
 const path = require('path');
+const md = require('markdown-it')();
 
 function activate(context) {
   let disposable = vscode.commands.registerCommand('write-jest-code.listFunctions', function () {
@@ -147,7 +148,7 @@ function activate(context) {
 		})
 		const solution = res.data.choices[0].message.content;
     // Need to fix height when length is too big
-		// vscode.window.showInformationMessage(solution, { modal: true });
+		// vscode.window.showInformationMessage(solution, { modal: true }); 
 
     // New Way for Showing
     if (solution !== undefined) {
@@ -160,30 +161,8 @@ function activate(context) {
           localResourceRoots: [vscode.Uri.file(path.join(context.extensionPath, 'resources'))]
         }
       );
-
-      // Generate HTML to display the solution
-      const html = `
-        <!DOCTYPE html>
-        <html lang="en">
-          <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Solution</title>
-            <style>
-              body {
-                font-family: sans-serif;
-              }
-              .solution {
-                max-height: 400px; /* Set a maximum height for the solution panel */
-                overflow: auto; /* Enable scrolling when the content overflows */
-              }
-            </style>
-          </head>
-          <body>
-            <div class="solution">${solution}</div>
-          </body>
-        </html>
-      `;
+      // Read the contents of the MD file and convert it to HTML
+      const html = md.render(solution);
 
       // Set the HTML content of the panel
       panel.webview.html = html;
