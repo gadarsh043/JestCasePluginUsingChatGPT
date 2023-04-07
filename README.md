@@ -1,65 +1,25 @@
-# write-jest-code README
+List All Methods
+List All Methods is a VS Code plugin that lists every method for both backend and UI code and gives options to generate unit test cases or explain edge cases or explain code.
 
-This is the README for your extension "write-jest-code". After writing up a brief description, we recommend including the following sections.
+Features
+With List All Methods, you can:
 
-## Features
+Quickly view a list of all methods in your codebase, including both backend and UI code.
+Generate unit test cases for any method in the list.
+Get explanations for edge cases of any method in the list.
+Get explanations for any code snippet in the list.
+Usage
+Install the List All Methods plugin in VS Code.
+Open the codebase you want to analyze.
+Press Ctrl+Shift+P (Windows, Linux) or Cmd+Shift+P (macOS) to open the Command Palette.
+Type "List All Methods" and select the command from the list.
+A list of all methods in your codebase will appear. Use the arrow keys to navigate the list.
+Press Enter to select a method. Depending on your choice, you can either generate a unit test case, get an explanation for an edge case, or get an explanation for the code snippet.
+Configuration
+Before using List All Methods, you need to add your API key in line no 70 of the extension.js file.
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+Contact
+If you have any questions or feedback, feel free to contact us.
 
-For example if there is an image subfolder under your extension project workspace:
-
-\!\[feature X\]\(images/feature-x.png\)
-
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
-
-## Requirements
-
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
-
-## Extension Settings
-
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
-
-For example:
-
-This extension contributes the following settings:
-
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
-
-## Known Issues
-
-Calling out known issues can help limit users opening duplicate issues against your extension.
-
-## Release Notes
-
-Users appreciate release notes as you update your extension.
-
-### 1.0.0
-
-Initial release of ...
-
-### 1.0.1
-
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
-
----
-
-## Working with Markdown
-
-You can author your README using Visual Studio Code.  Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux)
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux)
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets
-
-## For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
+License
+List All Methods is licensed under the MIT License.

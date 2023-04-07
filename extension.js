@@ -154,7 +154,7 @@ function activate(context) {
     if (solution !== undefined) {
       const panel = vscode.window.createWebviewPanel(
         'solutionPanel',
-        'Solution.md',
+        'Solution',
         vscode.ViewColumn.Two,
         {
           enableScripts: true,
