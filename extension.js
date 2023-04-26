@@ -36,7 +36,7 @@ function activate(context) {
 
 	// ChatGPT Initializing
 	const configuration = new Configuration({
-		apiKey: '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',
+		apiKey: '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',
 	});
 	const openai = new OpenAIApi(configuration);
 
@@ -128,7 +128,95 @@ function activate(context) {
 
   });
 
-  context.subscriptions.push(disposable);
+  let explainTheFunction = vscode.commands.registerCommand('write-jest-code.explainFunctions', async function () {
+    const editor = vscode.window.activeTextEditor;
+    const doc = editor.document;
+    const languageUsed = doc.languageId;
+
+	// ChatGPT Initializing
+	const configuration = new Configuration({
+		apiKey: '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',
+	});
+	const openai = new OpenAIApi(configuration);
+
+		// Get the selected text of the active editor
+		const selection = vscode.window.activeTextEditor.selection;
+		const selectedText = vscode.window.activeTextEditor.document.getText(selection);
+
+    // Options to choose from.
+    let Options = []
+    languageUsed === 'java' ? Options = ['Generate Unit Test Cases', 'Edge Case Analysis', 'Explain code','Generate Java Doc'] : Options = ['Generate Unit Test Cases', 'Edge Case Analysis', 'Explain code']
+    let suggestion = ''
+    await vscode.window.showQuickPick(Options).then(option => {
+      if (!option) {
+        return;
+      }
+      suggestion = option
+    })
+    if (suggestion.length === 0) {
+      return;
+    }
+
+    // Call OpenAI code here and then let user get the test case.
+    vscode.window.showInformationMessage('Will be right back with the result.');
+    await triggerOpenApiCall(selectedText, suggestion)
+    vscode.window.showInformationMessage('Hope this helps.');
+
+	async function triggerOpenApiCall (selectedText, suggestion) {
+		// OpenAi Initial Prompt here
+		let prompt = ''
+    switch (suggestion) {
+      case 'Generate Unit Test Cases': 
+        prompt = 
+        languageUsed === 'java' ?
+        'Generate JUnit Test cases for the below code from Spring boot framework. Consider edge cases such as null inputs or empty collections, as well as boundary cases such as the upper and lower limits of any input parameters. Additionally, consider testing any dependencies that the class relies on, and whether the class properly handles any exceptions that may be thrown during its execution. Finally, consider testing the class\'s interaction with any external resources such as databases, web services, or message queues. Ignore verifying log statements.':
+        'Give the full jest mock test case that covers the complete function\'s flow where consider the external function call as no-op\'s.'
+        break
+      case 'Edge Case Analysis': 
+        prompt = 'List all possible edge cases which could break the method as table with the columns, line of code which has potential error, error level, probability of occurence, updated code where the scenario is fixed'
+        break
+      case 'Explain code': 
+        prompt = 'Give a brief description on the below method, Explain it to me as if I have never interacted with this code base'
+        break
+      case 'Generate Java Doc': 
+        prompt = languageUsed === 'java' ?'Generate JavaDoc for below method. Dont include code, Just return Java Doc comment in response':
+        'generate comment to indicate what this function does (A javadoc equivalent of javascript)'
+        break
+      default: prompt = ''
+    }
+		prompt = prompt + '\n' + selectedText
+		const res = await openai.createChatCompletion({
+			model:"gpt-3.5-turbo",
+			messages:[{role: "user", content: prompt}]
+		})
+		const solution = res.data.choices[0].message.content;
+    // Need to fix height when length is too big
+		// vscode.window.showInformationMessage(solution, { modal: true }); 
+
+    // New Way for Showing
+    if (solution !== undefined) {
+      const panel = vscode.window.createWebviewPanel(
+        'solutionPanel',
+        'Solution',
+        vscode.ViewColumn.Two,
+        {
+          enableScripts: true,
+          localResourceRoots: [vscode.Uri.file(path.join(context.extensionPath, 'resources'))]
+        }
+      );
+      // Read the contents of the MD file and convert it to HTML
+      const html = md.render(solution);
+
+      // Set the HTML content of the panel
+      panel.webview.html = html;
+    } else {
+      console.log('Error: empty response from OpenAI');
+    }
+	}
+
+  });
+
+  context.subscriptions.push(disposable, explainTheFunction);
 }
 
 function isValidLanguage(languageUsed) {

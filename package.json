@@ -16,6 +16,10 @@
       {
         "command": "write-jest-code.listFunctions",
         "title": "List All Methods"
+      },
+      {
+        "command": "write-jest-code.explainFunctions",
+        "title": "Need input on this Methods"
       }
     ],
     "menus": {
@@ -23,7 +27,12 @@
         {
           "command": "write-jest-code.listFunctions",
           "when": "editorTextFocus",
-          "group": "navigation"
+          "group": "quinbay-assist@1"
+        },
+        {
+          "command": "write-jest-code.explainFunctions",
+          "when": "editorHasSelection",
+          "group": "quinbay-assist@2"
         }
       ],
       "commandPalette": [
@@ -47,7 +56,8 @@
         {
           "id": "write-jest-code-sidebar",
           "name": "Quinbay Assist",
-          "webviewPanel": "write-jest-code-sidebar"
+          "webviewPanel": "write-jest-code-sidebar",
+          "contextualTitle": "Hello"
         }
       ]
     }
