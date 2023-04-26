@@ -21,49 +21,18 @@ function activate(context) {
     // an information message is displayed and the function returns.
     const doc = editor.document;
     const languageUsed = doc.languageId;
-    if (!(languageUsed === 'vue' || languageUsed === 'javascript' || languageUsed === 'java')) {
+    if (!isValidLanguage(languageUsed)) {
       vscode.window.showInformationMessage('Please Run this on Java / Vue / Java script files');
       return;
     }
 
-    // A regular expression is used to match function declarations in the text.
-    // The matched function names are added to an array 'functionsMatch'.
-    const text = doc.getText();
-    // Below line finds all the functions
-    // const regex = /(function|const|let|var)\s+([\w]+)\s*(?=\()|(?:([\w]+)\s*()?\s*=>)|(?<=\.)([\w]+)\s*(?=\()/g;
-    // Need only functions which we can write text case
-    const regex = 
-    languageUsed === 'java' ?
-    /(?:public\s+)?(?:static\s+)?(?:final\s+)?(?:<[\w,?\s]+>\s+)?(?:\w+\s+)+(\w+)\s*\([^)]*\)\s*\{[\s\S]*?\}/gm : 
-    /^\s*\w+\s*\(\s*\)\s*{\s*((?:[^{}]*|\{(?:[^{}]*|\{(?:[^{}]*|\{[^{}]*\})*\})*\})*)\s*}/gm;
-
-    const functionsMatch = [];
-    let match;
-    while ((match = regex.exec(text))) {
-      const [funcName1, funcName2, , funcName3] = match;
-      if (funcName1) {
-        functionsMatch.push(funcName1);
-      } else if (funcName2) {
-        functionsMatch.push(funcName2);
-      } else if (funcName3) {
-        functionsMatch.push(funcName3);
-      }
-    }
-    // If no functions are found, an information message is displayed and the function returns.
+    const functionsMatch = findFunctionsInText(editor.document.getText(), languageUsed);
     if (!functionsMatch.length) {
       vscode.window.showInformationMessage('No functions found');
       return;
     }
 
-    // The function names in 'functionsMatch' are transformed into an array of objects with properties 'label', 'kind', and 'detail'. 
-    // This array is passed to 'vscode.window.showQuickPick', which displays a selection box containing the function names.
-    const functionNames = functionsMatch.map(match => {
-      return {
-        label: match,
-        kind: vscode.SymbolKind.Function,
-        detail: 'Function'
-      };
-    });
+    const functionNames = createFunctionList(functionsMatch);
 
 	// ChatGPT Initializing
 	const configuration = new Configuration({
@@ -82,25 +51,8 @@ function activate(context) {
       editor.selection = new vscode.Selection(position, position);
       editor.revealRange(editor.selection);
 
-      // Highlighting the selected code
-      // Get the selected function name from the quick pick dialog
-      const selectedFunctionName = selection.label;
-      // Create a TextEditorDecorationType for the highlighting
-      const decorationType = vscode.window.createTextEditorDecorationType({
-        backgroundColor: new vscode.ThemeColor('editor.selectionBackground'),
-        color: 'white',
-        fontWeight: 'normal'
-      });
-      // Create a range that covers the selected function name
-      const selectedFunctionRange = new vscode.Range(
-          editor.document.positionAt(text.indexOf(selectedFunctionName)),
-          editor.document.positionAt(text.indexOf(selectedFunctionName) + selectedFunctionName.length)
-      );
-      // Add the range to a list of ranges to decorate
-      const ranges = [selectedFunctionRange];
-      // Apply the decoration to the editor
-      editor.setDecorations(decorationType, ranges);  
-      
+      // Function to higlight the selected code
+      highlightFunction(editor, selection.label);
 
       // Options to choose from.
       let Options = []
@@ -112,6 +64,9 @@ function activate(context) {
         }
         suggestion = option
       })
+      if (suggestion.length === 0) {
+        return;
+      }
 
       // Call OpenAI code here and then let user get the test case.
       vscode.window.showInformationMessage('Will be right back with the result.');
@@ -174,6 +129,60 @@ function activate(context) {
   });
 
   context.subscriptions.push(disposable);
+}
+
+function isValidLanguage(languageUsed) {
+  return languageUsed === 'vue' || languageUsed === 'javascript' || languageUsed === 'java';
+}
+
+function findFunctionsInText(text, languageUsed) {
+  const regex =
+    languageUsed === 'java' ?
+    /(?:public\s+)?(?:static\s+)?(?:final\s+)?(?:<[\w,?\s]+>\s+)?(?:\w+\s+)+(\w+)\s*\([^)]*\)\s*\{[\s\S]*?\}/gm : 
+    /^\s*\w+\s*\(\s*\)\s*{\s*((?:[^{}]*|\{(?:[^{}]*|\{(?:[^{}]*|\{[^{}]*\})*\})*\})*)\s*}/gm;
+
+  const functionsMatch = [];
+  let match;
+  while ((match = regex.exec(text))) {
+    const [funcName1, funcName2, , funcName3] = match;
+    if (funcName1) {
+      functionsMatch.push(funcName1);
+    } else if (funcName2) {
+      functionsMatch.push(funcName2);
+    } else if (funcName3) {
+      functionsMatch.push(funcName3);
+    }
+  }
+
+  return functionsMatch;
+}
+
+function createFunctionList(functionsMatch) {
+  return functionsMatch.map(match => {
+    return {
+      label: match,
+      kind: vscode.SymbolKind.Function,
+      detail: 'Function'
+    };
+  });
+}
+
+function highlightFunction(editor, functionName) {
+  const decorationType = vscode.window.createTextEditorDecorationType({
+    backgroundColor: new vscode.ThemeColor('editor.selectionBackground'),
+    color: 'white',
+    fontWeight: 'normal'
+  });
+  const selectedFunctionRange = new vscode.Range(
+      editor.document.positionAt(editor.document.getText().indexOf(functionName)),
+      editor.document.positionAt(editor.document.getText().indexOf(functionName) + functionName.length)
+  );
+  const ranges = [selectedFunctionRange];
+  editor.setDecorations(decorationType, ranges);  
+  // Remove decoration after 3 seconds
+  setTimeout(() => {
+    editor.setDecorations(decorationType, []);
+  }, 3000);
 }
 exports.activate = activate;
 

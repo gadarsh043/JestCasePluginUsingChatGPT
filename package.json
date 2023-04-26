@@ -37,7 +37,7 @@
       "activitybar": [
         {
           "id": "write-jest-code-sidebar",
-          "title": "Write Jest Code",
+          "title": "Quinbay Assist",
           "icon": "./icons/iteration.png"
         }
       ]
@@ -46,7 +46,7 @@
       "write-jest-code-sidebar": [
         {
           "id": "write-jest-code-sidebar",
-          "name": "Write Jest Code",
+          "name": "Quinbay Assist",
           "webviewPanel": "write-jest-code-sidebar"
         }
       ]
