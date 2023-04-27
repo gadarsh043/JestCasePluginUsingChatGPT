@@ -9,8 +9,22 @@ const md = require('markdown-it')();
 const morph = require('./morph.js')
 const wordArray = ['Blibli', 'PeopleHum', 'Engati'];
 
-function activate(context) {
+async function activate(context) {
     console.log('Extension2 is running')
+    let userInputOpenAiApikey = undefined
+    while (!userInputOpenAiApikey || !userInputOpenAiApikey.match(/^sk-[a-zA-Z0-9]{22,50}$/)) {
+        userInputOpenAiApikey = await vscode.window.showInputBox({
+            prompt: 'Enter your OpenAI API key. You can find it at [https://platform.openai.com/account/api-keys](https://platform.openai.com/account/api-keys)',
+            value: userInputOpenAiApikey,
+            markdown: true
+        })
+    
+        if (userInputOpenAiApikey && !userInputOpenAiApikey.match(/^sk-[a-zA-Z0-9]{22,50}$/)) {
+            userInputOpenAiApikey = undefined
+            vscode.window.showInformationMessage('Error in OpenAI API key.', { modal: true })
+        }
+    }
+    console.log(userInputOpenAiApikey);
   let disposable = vscode.commands.registerCommand('write-jest-code.listFunctions', function () {
 
     // If there is no active editor, an information message is displayed and the function returns.
@@ -40,7 +54,7 @@ function activate(context) {
 
 	// ChatGPT Initializing
 	const configuration = new Configuration({
-		apiKey: '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',
+		apiKey: userInputOpenAiApikey,
 	});
 	const openai = new OpenAIApi(configuration);
 
@@ -87,7 +101,7 @@ function activate(context) {
 
 	// ChatGPT Initializing
 	const configuration = new Configuration({
-		apiKey: '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',
+		apiKey: userInputOpenAiApikey,
 	});
 	const openai = new OpenAIApi(configuration);
 
@@ -200,10 +214,18 @@ switch (suggestion) {
     prompt = prompt + '\n' + selection.label
     prompt = morph.replaceWithUnique(prompt, wordArray)
     console.log(prompt)
-    const res = await openai.createChatCompletion({
-        model:"gpt-3.5-turbo",
-        messages:[{role: "user", content: prompt}]
-    })
+    let res
+    try {
+      res = await openai.createChatCompletion({
+          model:"gpt-3.5-turbo",
+          messages:[{role: "user", content: prompt}]
+      })
+    } catch (error) {
+      if (error.response.status === 401) {
+        vscode.window.showInformationMessage('UnAuthorised API Token Key.', { modal: true });
+        vscode.commands.executeCommand('workbench.action.reloadWindow');
+      }
+    }
     let solution = res.data.choices[0].message.content;
 // Need to fix height when length is too big
     // vscode.window.showInformationMessage(solution, { modal: true }); 

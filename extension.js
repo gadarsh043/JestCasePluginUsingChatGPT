@@ -7,6 +7,7 @@ const path = require('path');
 const md = require('markdown-it')();
 
 function activate(context) {
+  console.log('Extension1 is running')
   let disposable = vscode.commands.registerCommand('write-jest-code.listFunctions', function () {
 
     // If there is no active editor, an information message is displayed and the function returns.
