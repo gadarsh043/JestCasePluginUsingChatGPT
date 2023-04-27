@@ -10,6 +10,7 @@ const morph = require('./morph.js')
 const wordArray = ['Blibli', 'PeopleHum', 'Engati'];
 
 function activate(context) {
+    console.log('Extension2 is running')
   let disposable = vscode.commands.registerCommand('write-jest-code.listFunctions', function () {
 
     // If there is no active editor, an information message is displayed and the function returns.
@@ -73,7 +74,7 @@ function activate(context) {
 
       // Call OpenAI code here and then let user get the test case.
       vscode.window.showInformationMessage('Will be right back with the result.');
-	    await triggerOpenApiCall(selection, suggestion, languageUsed, openai)
+	    await triggerOpenApiCall(selection, suggestion, languageUsed, openai, context)
       vscode.window.showInformationMessage('Hope this helps.');
     });
 
@@ -112,7 +113,7 @@ function activate(context) {
 
     // Call OpenAI code here and then let user get the test case.
     vscode.window.showInformationMessage('Will be right back with the result.');
-    await triggerOpenApiCall(selectedText, suggestion,languageUsed, openai)
+    await triggerOpenApiCall(selectedText, suggestion,languageUsed, openai, context)
     vscode.window.showInformationMessage('Hope this helps.');
 
   });
@@ -174,7 +175,7 @@ function highlightFunction(editor, functionName) {
   }, 3000);
 }
 
-async function triggerOpenApiCall (selection, suggestion,languageUsed, openai) {
+async function triggerOpenApiCall (selection, suggestion,languageUsed, openai, context) {
     // OpenAi Initial Prompt here
     let prompt = ''
 switch (suggestion) {

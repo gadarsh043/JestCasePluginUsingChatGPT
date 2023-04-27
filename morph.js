@@ -1,5 +1,5 @@
-var counter = 0;
-var nameMap = {};
+let counter = 0;
+let nameMap = {};
 
 function replaceWithUnique(str, wordArray) {
   wordArray.forEach(function(word) {

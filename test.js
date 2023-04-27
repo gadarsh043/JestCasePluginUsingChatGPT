@@ -323,6 +323,23 @@ export default {
       this.popupMetadata.current = response.pageMetaData.pageNumber + 1
       this.popupMetadata.perPage = response.pageMetaData.pageSize
     },
+    createOrDeleteDiscountValidation () {
+      if (this.campaignType === 'Flash sale' || this.campaignCriteria === 'Same criteria for all Blibli categories') {
+        this.createValidation('minDiscount', 'isEmpty', this.minDiscount, false)
+        this.createValidation('maxDiscount', 'isEmpty', this.maxDiscount, false)
+        this.createValidation('minDiscountLessThanMaxDiscount', 'comparison', this.minDiscount, true, this.maxDiscount)
+        this.createValidation('minFinalPrice', 'comparisonToMin', this.minFinalPrice, false)
+      } else {
+        this.removeValidation('minDiscount', true)
+        this.removeValidation('maxDiscount')
+        this.removeValidation('minFinalPrice')
+      }
+      if (this.campaignType === 'Flash sale') {
+        this.createValidation('minQuota', 'comparisonToMin', this.minQuota, false)
+      } else {
+        this.removeValidation('minQuota')
+      }
+    },
     loadMoreBlibliAssets () {
       this.$store.commit('setDisplayPage', Object.assign({}, this.getDisplayPage, {'MissingAssetList': this.popupMetadata.current + 1}))
       this.getMissingAssetApiCall()
