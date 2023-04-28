@@ -20,6 +20,3 @@ Before using List All Methods, you need to add your API key in line no 70 of the
 
 Contact
 If you have any questions or feedback, feel free to contact us.
-
-License
-List All Methods is licensed under the MIT License.
