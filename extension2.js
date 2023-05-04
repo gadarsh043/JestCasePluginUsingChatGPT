@@ -24,7 +24,7 @@ async function activate(context) {
             vscode.window.showInformationMessage('Error in OpenAI API key.', { modal: true })
         }
     }
-    console.log(userInputOpenAiApikey);
+    // console.log(userInputOpenAiApikey);
   let disposable = vscode.commands.registerCommand('write-jest-code.listFunctions', function () {
 
     // If there is no active editor, an information message is displayed and the function returns.
@@ -213,7 +213,8 @@ switch (suggestion) {
 }
     prompt = prompt + '\n' + selection.label
     prompt = morph.replaceWithUnique(prompt, wordArray)
-    console.log(prompt)
+    // console.log('Morphed Text')
+    // console.log(prompt)
     let res
     try {
       res = await openai.createChatCompletion({
@@ -227,6 +228,8 @@ switch (suggestion) {
       }
     }
     let solution = res.data.choices[0].message.content;
+    // console.log('UnMorphed Text')
+    // console.log(solution)
 // Need to fix height when length is too big
     // vscode.window.showInformationMessage(solution, { modal: true }); 
 
