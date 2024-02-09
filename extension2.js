@@ -11,20 +11,20 @@ const wordArray = ['Blibli', 'PeopleHum', 'Engati'];
 
 async function activate(context) {
     console.log('Extension2 is running')
-    let userInputOpenAiApikey = undefined
-    while (!userInputOpenAiApikey || !userInputOpenAiApikey.match(/^sk-[a-zA-Z0-9]{22,50}$/)) {
-        userInputOpenAiApikey = await vscode.window.showInputBox({
-            prompt: 'Enter your OpenAI API key. You can find it at [https://platform.openai.com/account/api-keys](https://platform.openai.com/account/api-keys)',
-            value: userInputOpenAiApikey,
-            markdown: true
-        })
+    let userInputOpenAiApikey = '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'
+    // while (!userInputOpenAiApikey || !userInputOpenAiApikey.match(/^sk-[a-zA-Z0-9]{22,50}$/)) {
+    //     userInputOpenAiApikey = await vscode.window.showInputBox({
+    //         prompt: 'Enter your OpenAI API key. You can find it at [https://platform.openai.com/account/api-keys](https://platform.openai.com/account/api-keys)',
+    //         value: userInputOpenAiApikey,
+    //         markdown: true
+    //     })
     
-        if (userInputOpenAiApikey && !userInputOpenAiApikey.match(/^sk-[a-zA-Z0-9]{22,50}$/)) {
-            userInputOpenAiApikey = undefined
-            vscode.window.showInformationMessage('Error in OpenAI API key.', { modal: true })
-        }
-    }
-    // console.log(userInputOpenAiApikey);
+    //     if (userInputOpenAiApikey && !userInputOpenAiApikey.match(/^sk-[a-zA-Z0-9]{22,50}$/)) {
+    //         userInputOpenAiApikey = undefined
+    //         vscode.window.showInformationMessage('Error in OpenAI API key.', { modal: true })
+    //     }
+    // }
+    console.log(userInputOpenAiApikey);
   let disposable = vscode.commands.registerCommand('write-jest-code.listFunctions', function () {
 
     // If there is no active editor, an information message is displayed and the function returns.
